@@ -6,6 +6,8 @@ export interface IGig extends Document {
   budget: number;
   ownerId: mongoose.Types.ObjectId;
   status: 'open' | 'assigned';
+  hiredAt?: Date;
+  hiredBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,6 +42,13 @@ const gigSchema = new Schema<IGig>({
     type: String,
     enum: ['open', 'assigned'],
     default: 'open'
+  },
+  hiredAt: {
+    type: Date
+  },
+  hiredBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true

@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes
-app.get('/api/health', (req: express.Request, res: express.Response) => {
+app.get('/api/health', (_req: express.Request, res: express.Response) => {
   logger.info('Health check endpoint accessed');
   res.json({ message: 'Server is running!' });
 });

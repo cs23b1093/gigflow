@@ -6,6 +6,9 @@ export interface IBid extends Document {
   message: string;
   price: number;
   status: 'pending' | 'hired' | 'rejected';
+  hiredAt?: Date;
+  rejectedAt?: Date;
+  rejectedReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +41,16 @@ const bidSchema = new Schema<IBid>({
     type: String,
     enum: ['pending', 'hired', 'rejected'],
     default: 'pending'
+  },
+  hiredAt: {
+    type: Date
+  },
+  rejectedAt: {
+    type: Date
+  },
+  rejectedReason: {
+    type: String,
+    maxlength: [200, 'Rejection reason cannot exceed 200 characters']
   }
 }, {
   timestamps: true
