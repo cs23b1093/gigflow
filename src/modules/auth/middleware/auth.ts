@@ -30,17 +30,15 @@ export const authenticate = asyncHandler(async (
   }
 
   try {
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
     
-    // Get user from database
     const user = await User.findById(decoded.id).select('-password');
     
     if (!user) {
       throw ApiError.unauthorized('Token is valid but user no longer exists');
     }
 
-    // Add user to request object
+    // Add user to request object for downstream middleware
     req.user = {
       id: user._id.toString(),
       email: user.email,

@@ -12,7 +12,7 @@ export const errorHandler = (
   let error = { ...err };
   error.message = err.message;
 
-  // Log error
+  // Log error with request context
   logger.error(err.message, {
     stack: err.stack,
     url: req.url,

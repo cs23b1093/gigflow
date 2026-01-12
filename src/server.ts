@@ -8,6 +8,8 @@ import { errorHandler } from './utils/errorHandler';
 
 // Import routes
 import authRoutes from './modules/auth/routes/authRoutes';
+import gigRoutes from './modules/gigs/routes/gigRoutes';
+import bidRoutes from './modules/bids/routes/bidRoutes';
 
 dotenv.config();
 
@@ -31,6 +33,8 @@ app.get('/api/health', (req: express.Request, res: express.Response) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/gigs', gigRoutes);
+app.use('/api/bids', bidRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
