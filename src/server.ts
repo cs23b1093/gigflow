@@ -1,12 +1,17 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import logger from './config/logger';
+import connectDB from './config/database';
+import { errorHandler } from './utils/errorHandler';
 
 dotenv.config();
 
 const app = express();
+
+// Connect to MongoDB
+connectDB();
 
 // Middleware
 app.use(cors({
@@ -17,23 +22,15 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes will be added here
-app.get('/api/health', (req: any, res: any) => {
+app.get('/api/health', (req: express.Request, res: express.Response) => {
+  logger.info('Health check endpoint accessed');
   res.json({ message: 'Server is running!' });
 });
 
-// Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
-
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-process.on('SIGINT', () => {
-    console.log('SIGINT signal received: closing MongoDB connection');
-    process.exit(0);
+  logger.info(`Server running on port ${PORT}`);
 });
