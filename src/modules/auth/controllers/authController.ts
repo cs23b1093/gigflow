@@ -13,7 +13,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     throw ApiError.badRequest('Validation failed: ' + errors.array().map(err => err.msg).join(', '));
   }
 
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -23,7 +23,8 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.create({
     name,
     email,
-    password
+    password,
+    role: role || 'freelancer'
   });
 
   const token = generateToken(user._id.toString());
@@ -39,6 +40,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         createdAt: user.createdAt
       },
       token
@@ -77,6 +79,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         createdAt: user.createdAt
       },
       token
@@ -110,6 +113,7 @@ export const getMe = asyncHandler(async (req: AuthenticatedRequest, res: Respons
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       }
