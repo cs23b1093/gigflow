@@ -28,7 +28,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: 'https://gigflow-client-6t9z-hxz3ymqzs-amit-sharmas-projects-ad05ea67.vercel.app', // Frontend URL
+  origin: "*",
   credentials: true
 }));
 app.use(express.json());
