@@ -7,6 +7,7 @@ import ApiError from '../../../utils/ApiError';
 import { asyncHandler } from '../../../utils/errorHandler';
 import { AuthenticatedRequest } from '../../../types';
 import logger from '../../../config/logger';
+import { notificationService } from '../../../services/notificationService';
 
 export const submitBid = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const errors = validationResult(req);
@@ -53,6 +54,15 @@ export const submitBid = asyncHandler(async (req: AuthenticatedRequest, res: Res
   ]);
 
   logger.info(`New bid submitted: $${price} on gig ${gig.title} by user ${req.user?.email}`);
+
+  // Send real-time notification to gig owner
+  const populatedBid = bid as any;
+  await notificationService.sendBidReceivedNotification(
+    gig.ownerId.toString(),
+    gig.title,
+    populatedBid.freelancerId.name,
+    price
+  );
 
   res.status(201).json({
     success: true,
@@ -133,7 +143,7 @@ export const hireBid = asyncHandler(async (req: AuthenticatedRequest, res: Respo
           throw ApiError.forbidden('You can only hire for your own gigs');
         }
 
-        // STEP 1: Atomic gig status update with condition (prevents race conditions)
+        // Atomic gig status update with condition (prevents race conditions)
         const gigUpdateResult = await Gig.findOneAndUpdate(
           { 
             _id: gig._id,
@@ -156,7 +166,7 @@ export const hireBid = asyncHandler(async (req: AuthenticatedRequest, res: Respo
           throw ApiError.conflict('This gig has already been assigned to another freelancer');
         }
 
-        // STEP 2: Atomic bid status update with condition check
+        // Atomic bid status update with condition check
         const bidUpdateResult = await Bid.findOneAndUpdate(
           {
             _id: bidId,
@@ -177,7 +187,13 @@ export const hireBid = asyncHandler(async (req: AuthenticatedRequest, res: Respo
           throw ApiError.conflict('This bid is no longer available for hiring');
         }
 
-        // STEP 3: Reject all other pending bids atomically
+        // Get rejected bids for notifications, then reject them atomically
+        const rejectedBids = await Bid.find({
+          gigId: gig._id,
+          _id: { $ne: bidId },
+          status: 'pending'
+        }).populate('freelancerId', '_id name').session(session);
+
         const rejectionResult = await Bid.updateMany(
           {
             gigId: gig._id,
@@ -194,7 +210,7 @@ export const hireBid = asyncHandler(async (req: AuthenticatedRequest, res: Respo
 
         logger.info(`Hiring completed: ${bid.freelancerId} hired for gig "${gig.title}" at $${bid.price}. Rejected ${rejectionResult.modifiedCount} other bids.`);
 
-        return { bid: bidUpdateResult, gig: gigUpdateResult };
+        return { bid: bidUpdateResult, gig: gigUpdateResult, rejectedBids };
       }, {
         // Transaction options for better race condition handling
         readPreference: 'primary',
@@ -206,6 +222,33 @@ export const hireBid = asyncHandler(async (req: AuthenticatedRequest, res: Respo
       const updatedBid = await Bid.findById(bidId)
         .populate('freelancerId', 'name email')
         .populate('gigId', 'title status');
+
+      // Send real-time hiring notification to freelancer
+      const freelancer = updatedBid?.freelancerId as any;
+      const gig = updatedBid?.gigId as any;
+      
+      if (freelancer && gig) {
+        await notificationService.sendHiringNotification(
+          freelancer._id.toString(),
+          gig.title,
+          req.user?.name || 'Client',
+          updatedBid?.price || 0
+        );
+
+        // Send rejection notifications to other freelancers
+        if (result?.rejectedBids && result?.rejectedBids.length > 0) {
+          for (const rejectedBid of result?.rejectedBids) {
+            const rejectedFreelancer = rejectedBid.freelancerId as any;
+            if (rejectedFreelancer) {
+              await notificationService.sendBidRejectionNotification(
+                rejectedFreelancer._id.toString(),
+                gig.title,
+                'Another freelancer was hired'
+              );
+            }
+          }
+        }
+      }
 
       res.json({
         success: true,
