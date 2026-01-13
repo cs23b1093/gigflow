@@ -1,470 +1,393 @@
 {
-	"info": {
-		"_postman_id": "freelance-platform-api",
-		"name": "Freelance Platform API",
-		"description": "Complete API collection for testing the freelance platform backend with authentication, gig management, and bidding system.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Authentication",
-			"item": [
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/health",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "health"]
-						}
-					}
-				},
-				{
-					"name": "Register User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 201) {",
-									"    const response = pm.response.json();",
-									"    pm.environment.set('authToken', response.data.token);",
-									"    pm.environment.set('userId', response.data.user.id);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/register",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "auth", "register"]
-						}
-					}
-				},
-				{
-					"name": "Login User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    const response = pm.response.json();",
-									"    pm.environment.set('authToken', response.data.token);",
-									"    pm.environment.set('userId', response.data.user.id);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/login",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "auth", "login"]
-						}
-					}
-				},
-				{
-					"name": "Get Current User",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/me",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "auth", "me"]
-						}
-					}
-				},
-				{
-					"name": "Logout User",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/logout",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "auth", "logout"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Gig Management",
-			"item": [
-				{
-					"name": "Create Gig",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 201) {",
-									"    const response = pm.response.json();",
-									"    pm.environment.set('gigId', response.data.gig._id);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Build React E-commerce Website\",\n  \"description\": \"Need a modern e-commerce website built with React, Node.js, and MongoDB. Should include user authentication, product catalog, shopping cart, and payment integration. Looking for an experienced developer who can deliver high-quality code.\",\n  \"budget\": 2500\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/gigs",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "gigs"]
-						}
-					}
-				},
-				{
-					"name": "Browse All Gigs (Public)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/gigs?page=1&limit=10&sortBy=createdAt&sortOrder=desc",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "gigs"],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "sortBy",
-									"value": "createdAt"
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Search Gigs",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/gigs?search=react&page=1&limit=5",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "gigs"],
-							"query": [
-								{
-									"key": "search",
-									"value": "react"
-								},
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "5"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Single Gig",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/gigs/{{gigId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "gigs", "{{gigId}}"]
-						}
-					}
-				},
-				{
-					"name": "Update Gig",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Build Advanced React E-commerce Platform\",\n  \"budget\": 3000\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/gigs/{{gigId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "gigs", "{{gigId}}"]
-						}
-					}
-				},
-				{
-					"name": "Get My Gigs",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/gigs/user/my-gigs?status=open",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "gigs", "user", "my-gigs"],
-							"query": [
-								{
-									"key": "status",
-									"value": "open"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Bidding System",
-			"item": [
-				{
-					"name": "Submit Bid",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 201) {",
-									"    const response = pm.response.json();",
-									"    pm.environment.set('bidId', response.data.bid._id);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{freelancerToken}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"gigId\": \"{{gigId}}\",\n  \"message\": \"I have 5 years of experience building React e-commerce applications. I can deliver this project within 3 weeks with clean, maintainable code. My portfolio includes similar projects with payment integration and modern UI/UX.\",\n  \"price\": 2200\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/bids",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "bids"]
-						}
-					}
-				},
-				{
-					"name": "Get Bids for Gig (Owner Only)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/bids/{{gigId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "bids", "{{gigId}}"]
-						}
-					}
-				},
-				{
-					"name": "Get My Bids (Freelancer)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{freelancerToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/bids/my-bids?status=pending",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "bids", "my-bids"],
-							"query": [
-								{
-									"key": "status",
-									"value": "pending"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Bid Details",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/bids/bid/{{bidId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "bids", "bid", "{{bidId}}"]
-						}
-					}
-				},
-				{
-					"name": "Hire Freelancer (Race-Condition Safe)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/bids/{{bidId}}/hire",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "bids", "{{bidId}}", "hire"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Test Scenarios",
-			"item": [
-				{
-					"name": "Register Second User (Freelancer)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 201) {",
-									"    const response = pm.response.json();",
-									"    pm.environment.set('freelancerToken', response.data.token);",
-									"    pm.environment.set('freelancerId', response.data.user.id);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"Password123\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/register",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "auth", "register"]
-						}
-					}
-				},
-				{
-					"name": "Test Race Condition - Concurrent Hiring",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/bids/{{bidId}}/hire",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "bids", "{{bidId}}", "hire"]
-						}
-					}
-				}
-			]
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:5000"
-		}
-	]
+  "info": {
+    "name": "Freelance Platform API",
+    "description": "Complete API collection for the freelance platform with authentication, gig management, and bidding system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', response.data.token);",
+                  "    pm.test('User registered successfully', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', response.data.token);",
+                  "    pm.test('Login successful', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gigs",
+      "item": [
+        {
+          "name": "Browse All Gigs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/gigs?page=1&limit=10&search=react&sortBy=createdAt&sortOrder=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["gigs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "react"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create New Gig",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Build React E-commerce Website\",\n  \"description\": \"Need a modern e-commerce website built with React, Node.js, and MongoDB. Should include user authentication, product catalog, shopping cart, and payment integration. Looking for an experienced developer who can deliver high-quality code.\",\n  \"budget\": 2500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/gigs",
+              "host": ["{{baseUrl}}"],
+              "path": ["gigs"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Gig",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/gigs/{{gigId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["gigs", "{{gigId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Gig",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Build Advanced React E-commerce Platform\",\n  \"budget\": 3000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/gigs/{{gigId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["gigs", "{{gigId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get My Gigs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/gigs/user/my-gigs?status=open",
+              "host": ["{{baseUrl}}"],
+              "path": ["gigs", "user", "my-gigs"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "open"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Gig",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/gigs/{{gigId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["gigs", "{{gigId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bids",
+      "item": [
+        {
+          "name": "Submit Bid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gigId\": \"{{gigId}}\",\n  \"message\": \"I have 5+ years of experience in React and Node.js development. I've built similar e-commerce platforms and can deliver this project within 3 weeks. My portfolio includes modern, responsive designs with secure payment integration.\",\n  \"price\": 2200\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bids",
+              "host": ["{{baseUrl}}"],
+              "path": ["bids"]
+            }
+          }
+        },
+        {
+          "name": "Get Bids for Gig",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bids/{{gigId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bids", "{{gigId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get My Bids",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bids/my-bids?status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["bids", "my-bids"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Bid Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bids/bid/{{bidId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bids", "bid", "{{bidId}}"]
+            }
+          }
+        },
+        {
+          "name": "Hire Freelancer (Race-Safe)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bids/{{bidId}}/hire",
+              "host": ["{{baseUrl}}"],
+              "path": ["bids", "{{bidId}}", "hire"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

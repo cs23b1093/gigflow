@@ -1,10 +1,13 @@
 import express from 'express';
+import { createServer } from 'http';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import logger from './config/logger';
 import connectDB from './config/database';
 import { errorHandler } from './utils/errorHandler';
+import SocketManager from './config/socket';
+import { notificationService } from './services/notificationService';
 
 // Import routes
 import authRoutes from './modules/auth/routes/authRoutes';
@@ -14,6 +17,11 @@ import bidRoutes from './modules/bids/routes/bidRoutes';
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
+
+// Initialize Socket.io
+const socketManager = new SocketManager(server);
+notificationService.setSocketManager(socketManager);
 
 // Connect to MongoDB
 connectDB();
@@ -40,6 +48,6 @@ app.use('/api/bids', bidRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT} with Socket.io enabled`);
 });
