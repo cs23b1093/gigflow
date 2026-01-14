@@ -9,7 +9,7 @@ interface JwtPayload {
   id: string;
   iat: number;
   exp: number;
-}
+};
 
 export const authenticate = asyncHandler(async (
   req: AuthenticatedRequest,

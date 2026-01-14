@@ -1,8 +1,8 @@
-import jwt, { SignOptions} from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 
 export const generateToken = (userId: string): string => {
-  const options: SignOptions = {
+  const options = {
     expiresIn: 60 * 60 * 24 * 7
   };
 

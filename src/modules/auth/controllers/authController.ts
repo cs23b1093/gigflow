@@ -66,7 +66,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     throw ApiError.unauthorized('Invalid email or password');
   }
 
-  const token = generateToken(user._id.toString());
+  const token = generateToken(user._id.toString());   
   setTokenCookie(res, token);
 
   logger.info(`User logged in: ${email}`);
